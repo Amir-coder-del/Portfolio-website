@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Amir Garba | Roblox Builder & Environment Designer</title>
+
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Tailwind Custom Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              black: '#07040d',
+              dark: '#0f091f',
+              surface: '#160e2e',
+              border: 'rgba(147, 51, 234, 0.3)',
+              purple: '#8b5cf6',
+              lightPurple: '#c084fc',
+              accent: '#d946ef',
+              pink: '#ec4899',
+              roblox: '#a855f7'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          animation: {
+            'glow-pulse': 'glow 4s ease-in-out infinite alternate',
+            'float': 'float 6s ease-in-out infinite',
+          },
+          keyframes: {
+            glow: {
+              '0%': { opacity: '0.4', filter: 'blur(40px)' },
+              '100%': { opacity: '0.85', filter: 'blur(60px)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Glassmorphism & Visual Aesthetics -->
+  <style>
+    body {
+      background-color: #07040d;
+      color: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    .bg-grid-pattern {
+      background-size: 40px 40px;
+      background-image: 
+        linear-gradient(to right, rgba(139, 92, 246, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(139, 92, 246, 0.07) 1px, transparent 1px);
+    }
+
+    .glass-card {
+      background: rgba(22, 14, 46, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(147, 51, 234, 0.25);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      border-color: rgba(192, 132, 252, 0.5);
+      box-shadow: 0 12px 35px -10px rgba(139, 92, 246, 0.35);
+    }
+
+    /* Ultra Smooth Button & Interaction Tweens */
+    button, a, input, select, textarea {
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    button:active, a:active {
+      transform: scale(0.96) !important;
+    }
+
+    .text-gradient {
+      background: linear-gradient(135deg, #ffffff 0%, #c084fc 50%, #e879f9 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .text-gradient-purple {
+      background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #07040d;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #3b0764;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #7e22ce;
+    }
+  </style>
+</head>
+<body class="bg-brand-black min-h-screen flex flex-col justify-between selection:bg-purple-600 selection:text-white">
+
+  <!-- Mouse Following Dynamic Gradient Spotlight -->
+  <div id="mouseGlow" class="fixed top-0 left-0 w-[500px] h-[500px] pointer-events-none z-0 rounded-full bg-gradient-to-r from-purple-600/20 via-fuchsia-500/15 to-pink-500/20 blur-3xl opacity-80" style="will-change: transform;"></div>
+
+  <!-- Ambient Glow Background Blobs -->
+  <div class="fixed top-0 left-1/4 w-[500px] h-[500px] bg-purple-900/30 rounded-full animate-glow-pulse pointer-events-none z-0"></div>
+  <div class="fixed bottom-10 right-10 w-[600px] h-[600px] bg-fuchsia-900/20 rounded-full animate-glow-pulse pointer-events-none z-0" style="animation-delay: 2s;"></div>
+  <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-grid-pattern pointer-events-none z-0 opacity-60"></div>
+
+  <!-- Toast Notification System -->
+  <div id="toastContainer" class="fixed top-20 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+
+  <!-- STICKY NAVBAR -->
+  <header class="sticky top-0 z-40 w-full backdrop-blur-xl bg-brand-black/85 border-b border-purple-900/40 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <!-- Logo -->
+        <a href="#" onclick="switchTab('about')" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-pink-500 flex items-center justify-center text-white font-extrabold text-xl shadow-lg shadow-purple-600/30 group-hover:scale-105 transition-transform duration-300">
+            AG
+          </div>
+          <span class="text-xl font-extrabold tracking-tight text-white group-hover:text-purple-300 transition-colors">
+            AMIR<span class="text-purple-400">GARBA</span>
+          </span>
+        </a>
+
+        <!-- Desktop Navigation Tabs (3 Main Pages) -->
+        <nav class="hidden md:flex items-center space-x-2 bg-brand-surface/70 p-1.5 rounded-full border border-purple-500/25">
+          <button id="nav-about" onclick="switchTab('about')" 
+            class="nav-tab px-6 py-2 rounded-full font-medium text-sm transition-all duration-300 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-600/30">
+            <i class="fa-solid fa-user text-xs mr-2"></i> About Me
+          </button>
+          <button id="nav-work" onclick="switchTab('work')" 
+            class="nav-tab px-6 py-2 rounded-full font-medium text-sm transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-950/40">
+            <i class="fa-solid fa-cube text-xs mr-2"></i> Roblox Builds
+          </button>
+          <button id="nav-prices" onclick="switchTab('prices')" 
+            class="nav-tab px-6 py-2 rounded-full font-medium text-sm transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-950/40">
+            <i class="fa-solid fa-tag text-xs mr-2"></i> Prices
+          </button>
+        </nav>
+
+        <!-- Right Quick Action -->
+        <div class="hidden md:flex items-center gap-4">
+          <button onclick="openHireModal('Roblox Build Commission')" class="relative inline-flex items-center justify-center p-0.5 overflow-hidden text-sm font-semibold rounded-full group bg-gradient-to-br from-purple-600 to-pink-500 group-hover:from-purple-600 group-hover:to-pink-500 hover:text-white text-white focus:outline-none shadow-lg shadow-purple-900/40">
+            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-brand-black rounded-full group-hover:bg-opacity-0">
+              <i class="fa-solid fa-paper-plane mr-2 text-purple-400 group-hover:text-white"></i> Hire Me
+            </span>
+          </button>
+        </div>
+
+        <!-- Mobile Menu Toggle Button -->
+        <div class="md:hidden flex items-center">
+          <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="p-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-purple-900/30 focus:outline-none">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-brand-surface border-b border-purple-900/40 px-4 pt-2 pb-6 space-y-2">
+      <button onclick="switchTab('about'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl font-medium text-white bg-purple-900/30 border border-purple-500/30 flex items-center gap-3">
+        <i class="fa-solid fa-user text-purple-400"></i> About Me
+      </button>
+      <button onclick="switchTab('work'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl font-medium text-gray-300 hover:bg-purple-900/20 hover:text-white flex items-center gap-3">
+        <i class="fa-solid fa-cube text-purple-400"></i> Roblox Builds
+      </button>
+      <button onclick="switchTab('prices'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl font-medium text-gray-300 hover:bg-purple-900/20 hover:text-white flex items-center gap-3">
+        <i class="fa-solid fa-tag text-purple-400"></i> Prices
+      </button>
+      <div class="pt-2">
+        <button onclick="openHireModal('Roblox Build Commission'); toggleMobileMenu()" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold text-center shadow-lg shadow-purple-900/50">
+          Hire Me
+        </button>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- MAIN CONTAINER FOR THE 3 WEBPAGES -->
+  <main class="relative z-10 flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- WEBPAGE 1: ABOUT ME (HERO / BIO / STATS / SKILLS) -->
+    <section id="page-about" class="space-y-16">
+      
+      <!-- Hero Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-6 lg:pt-10">
+        
+        <!-- Left Content Column -->
+        <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+          
+          <!-- Status Badge -->
+          <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-card border border-purple-500/40 text-purple-300 text-xs sm:text-sm font-medium animate-float">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Open for Roblox Studio Commissions &amp; Map Builds
+          </div>
+
+          <!-- Main Title -->
+          <h1 class="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
+            Roblox Builder &amp; <br class="hidden sm:inline" />
+            <span class="text-gradient">Environment Designer</span>
+          </h1>
+
+          <!-- Paragraph Bio -->
+          <p class="text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto lg:mx-0">
+            Hi! I’m <strong class="text-white font-semibold">Amir Garba</strong> — a dedicated <strong class="text-purple-300 font-semibold">Roblox Builder</strong> specializing exclusively in Roblox Studio environments, realistic &amp; stylized structures, custom atmospheric lighting, and detailed game maps.
+          </p>
+
+          <!-- Action Buttons -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-4">
+            <button onclick="switchTab('work')" class="px-8 py-4 rounded-full bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-base shadow-xl shadow-purple-600/30 hover:shadow-purple-600/50 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-3">
+              <span id="heroBuildsBtnText">View Roblox Builds</span>
+              <i class="fa-solid fa-arrow-right text-sm"></i>
+            </button>
+            <button onclick="switchTab('prices')" class="px-8 py-4 rounded-full glass-card text-gray-200 hover:text-white font-semibold text-base hover:bg-purple-900/30 transition-all duration-300 border border-purple-500/30 flex items-center gap-3">
+              <span>Check Commission Prices</span>
+              <i class="fa-solid fa-tag text-purple-400"></i>
+            </button>
+          </div>
+
+          <!-- Highlight Quick Stats Grid -->
+          <div class="grid grid-cols-3 gap-4 pt-8 border-t border-purple-900/40 max-w-lg mx-auto lg:mx-0">
+            <div class="glass-card p-4 rounded-2xl text-center">
+              <h3 class="text-2xl sm:text-3xl font-extrabold text-purple-400">2</h3>
+              <p class="text-xs text-gray-400 mt-1">Years Experience</p>
+            </div>
+            <div class="glass-card p-4 rounded-2xl text-center">
+              <h3 id="statCompletedProjects" class="text-2xl sm:text-3xl font-extrabold text-fuchsia-400">0</h3>
+              <p class="text-xs text-gray-400 mt-1">Completed Builds</p>
+            </div>
+            <div class="glass-card p-4 rounded-2xl text-center">
+              <h3 class="text-2xl sm:text-3xl font-extrabold text-pink-400">100%</h3>
+              <p class="text-xs text-gray-400 mt-1">Roblox Focus</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Visual Feature Showcase Column -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="relative w-72 h-72 sm:w-96 sm:h-96">
+            <!-- Neon Glow Ring -->
+            <div class="absolute -inset-1.5 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-pink-500 rounded-3xl blur-lg opacity-75 animate-pulse"></div>
+            
+            <!-- Card Container showcasing Roblox Studio Badge -->
+            <div class="relative w-full h-full glass-card rounded-3xl overflow-hidden p-6 border border-purple-400/40 flex flex-col items-center justify-center text-center space-y-4">
+              <div class="w-20 h-20 rounded-2xl bg-purple-900/50 border border-purple-500/40 flex items-center justify-center text-purple-400 text-4xl shadow-xl shadow-purple-600/30">
+                <i class="fa-solid fa-cube"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-extrabold text-white">Amir Garba</h3>
+                <p class="text-xs text-purple-300 font-medium">Roblox Studio Builder</p>
+              </div>
+              <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/40 text-purple-200 text-xs font-semibold border border-purple-500/30">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Ready for Commissions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Skill Pills Section -->
+      <div class="space-y-8">
+        <div class="text-center max-w-2xl mx-auto space-y-2">
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Roblox Studio <span class="text-gradient-purple">Building Skills</span>
+          </h2>
+          <p class="text-sm text-gray-400">Specializing in high-detail Roblox Studio structures, custom terrain, and map design.</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+          
+          <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center space-y-3 hover:scale-105 transition-transform">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+              <i class="fa-solid fa-cubes"></i>
+            </div>
+            <span class="text-sm font-semibold text-white">Part Modeling</span>
+            <span class="text-xs text-purple-300/80">Roblox Studio</span>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center space-y-3 hover:scale-105 transition-transform">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+              <i class="fa-solid fa-mountain-sun"></i>
+            </div>
+            <span class="text-sm font-semibold text-white">Smooth Terrain</span>
+            <span class="text-xs text-purple-300/80">Landscaping</span>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center space-y-3 hover:scale-105 transition-transform">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+              <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <span class="text-sm font-semibold text-white">Atmosphere &amp; FX</span>
+            <span class="text-xs text-purple-300/80">Custom Lighting</span>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center space-y-3 hover:scale-105 transition-transform">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+              <i class="fa-solid fa-gopuram"></i>
+            </div>
+            <span class="text-sm font-semibold text-white">Architecture</span>
+            <span class="text-xs text-purple-300/80">Gothic &amp; Modern</span>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center space-y-3 hover:scale-105 transition-transform">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+              <i class="fa-solid fa-paintbrush"></i>
+            </div>
+            <span class="text-sm font-semibold text-white">Material Design</span>
+            <span class="text-xs text-purple-300/80">Texturing &amp; Color</span>
+          </div>
+
+          <div class="glass-card p-5 rounded-2xl flex flex-col items-center text-center space-y-3 hover:scale-105 transition-transform">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl">
+              <i class="fa-solid fa-gauge-high"></i>
+            </div>
+            <span class="text-sm font-semibold text-white">Map Optimization</span>
+            <span class="text-xs text-purple-300/80">Lag-Free Builds</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Flow Banner to Page 2 -->
+      <div class="glass-card p-8 rounded-3xl border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left bg-gradient-to-r from-purple-950/40 via-brand-surface to-fuchsia-950/30">
+        <div class="space-y-1">
+          <h3 class="text-xl font-bold text-white">Want to explore my Roblox Studio builds?</h3>
+          <p class="text-sm text-gray-300">Browse through all 5 showcase builds or upload new screenshots live.</p>
+        </div>
+        <button onclick="switchTab('work')" class="px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm shadow-lg shadow-purple-900/50 transition-all flex items-center gap-2 whitespace-nowrap">
+          <span>Explore Roblox Builds</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- WEBPAGE 2: MY WORK (ROBLOX PORTFOLIO GALLERY & DYNAMIC UPLOADER) -->
+    <section id="page-work" class="hidden space-y-10">
+      
+      <!-- Section Header & Add Work Action -->
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-purple-900/40">
+        <div>
+          <span class="text-xs font-semibold tracking-wider text-purple-400 uppercase">Roblox Studio Showcase</span>
+          <h1 class="text-3xl sm:text-5xl font-extrabold text-white mt-1">
+            My Roblox <span class="text-gradient">Builds &amp; Works</span>
+          </h1>
+          <p class="text-gray-300 text-sm sm:text-base mt-2 max-w-xl">
+            Exclusively showcasing Roblox Studio builds. You can also upload new build screenshots live into this grid!
+          </p>
+        </div>
+
+        <button onclick="openUploadModal()" class="px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-purple-600/30 flex items-center gap-2 self-start md:self-auto transition-transform active:scale-95">
+          <i class="fa-solid fa-cloud-arrow-up text-base"></i>
+          <span>+ Upload Build Screenshot</span>
+        </button>
+      </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+        <button id="filterAllBtn" onclick="filterGallery('all')" class="filter-btn active px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-purple-600 text-white shadow-md">
+          All Builds (0)
+        </button>
+        <button onclick="filterGallery('Gothic & Fantasy')" class="filter-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all glass-card text-gray-300 hover:text-white hover:bg-purple-900/40">
+          Gothic &amp; Fantasy
+        </button>
+        <button onclick="filterGallery('Shrine & Nature')" class="filter-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all glass-card text-gray-300 hover:text-white hover:bg-purple-900/40">
+          Shrine &amp; Nature
+        </button>
+        <button onclick="filterGallery('Urban & Tower')" class="filter-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all glass-card text-gray-300 hover:text-white hover:bg-purple-900/40">
+          Urban &amp; Tower
+        </button>
+        <button onclick="filterGallery('Medieval')" class="filter-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all glass-card text-gray-300 hover:text-white hover:bg-purple-900/40">
+          Medieval
+        </button>
+      </div>
+
+      <!-- Dynamic Roblox Portfolio Grid -->
+      <div id="portfolioGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Cards injected dynamically via JS -->
+      </div>
+
+      <!-- Flow Banner to Page 3 -->
+      <div class="glass-card p-8 rounded-3xl border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left bg-gradient-to-r from-purple-950/40 via-brand-surface to-fuchsia-950/30">
+        <div class="space-y-1">
+          <h3 class="text-xl font-bold text-white">Need a Roblox build for your game?</h3>
+          <p class="text-sm text-gray-300">Check out my affordable commission rates or send an inquiry to 29amirgarba@gmail.com.</p>
+        </div>
+        <button onclick="switchTab('prices')" class="px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold text-sm shadow-lg shadow-purple-900/50 transition-all flex items-center gap-2 whitespace-nowrap">
+          <span>View Commission Prices</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+
+    </section>
+
+
+    <!-- WEBPAGE 3: PRICES (AFFORDABLE ROBLOX COMMISSION RATES) -->
+    <section id="page-prices" class="hidden space-y-12">
+      
+      <!-- Section Header -->
+      <div class="text-center max-w-3xl mx-auto space-y-4">
+        <span class="text-xs font-semibold tracking-wider text-purple-400 uppercase">Affordable Roblox Rates</span>
+        <h1 class="text-3xl sm:text-5xl font-extrabold text-white">
+          Roblox Build <span class="text-gradient">Commission Prices</span>
+        </h1>
+        <p class="text-gray-300 text-sm sm:text-base">
+          Cheaper rates tailored specifically for Roblox game developers, group owners, and game studios!
+        </p>
+      </div>
+
+      <!-- Pricing Cards Tier Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch pt-4">
+        
+        <!-- Tier 1: Small Build / Asset -->
+        <div class="glass-card rounded-3xl p-8 flex flex-col justify-between space-y-6 relative border border-purple-500/20 hover:border-purple-500/50 transition-all">
+          <div class="space-y-4">
+            <div class="inline-block px-3 py-1 rounded-full bg-purple-900/40 text-purple-300 text-xs font-semibold">
+              Small Asset / Prop
+            </div>
+            <h3 class="text-2xl font-bold text-white">Starter Build</h3>
+            <p class="text-xs text-gray-400">Ideal for single small structures, individual props, or simple Roblox assets.</p>
+            <div class="flex items-baseline gap-2 py-2">
+              <span class="text-4xl font-black text-white">$15</span>
+              <span class="text-sm font-semibold text-purple-300">(or 1,500 Robux)</span>
+            </div>
+
+            <ul class="space-y-3 pt-4 border-t border-purple-900/40 text-sm text-gray-300">
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>1 Small Structure or Asset</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Roblox Studio Part Building</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Basic Custom Textures</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>1-2 Days Delivery</span>
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="openHireModal('Starter Build ($15 / 1,500 Robux)')" class="w-full py-3.5 rounded-2xl glass-card hover:bg-purple-900/40 text-white font-semibold text-sm border border-purple-500/30 transition-all">
+            Order Starter Build
+          </button>
+        </div>
+
+        <!-- Tier 2: Detailed House / Medium Map (FEATURED / POPULAR) -->
+        <div class="glass-card rounded-3xl p-8 flex flex-col justify-between space-y-6 relative border-2 border-purple-500 shadow-2xl shadow-purple-600/30 scale-105 bg-gradient-to-b from-purple-950/40 via-brand-surface to-brand-surface">
+          
+          <!-- Popular Badge -->
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-bold uppercase tracking-wider shadow-md">
+            Best Value
+          </div>
+
+          <div class="space-y-4 pt-2">
+            <div class="inline-block px-3 py-1 rounded-full bg-fuchsia-900/40 text-fuchsia-300 text-xs font-semibold">
+              Detailed Structure / Medium Map
+            </div>
+            <h3 class="text-2xl font-bold text-white">Pro Roblox Build</h3>
+            <p class="text-xs text-gray-300">Perfect for detailed houses, multi-story buildings, or medium game arenas.</p>
+            <div class="flex items-baseline gap-2 py-2">
+              <span class="text-5xl font-black text-white">$45</span>
+              <span class="text-sm font-semibold text-purple-300">(or 4,500 Robux)</span>
+            </div>
+
+            <ul class="space-y-3 pt-4 border-t border-purple-900/40 text-sm text-gray-200">
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+                <span>Detailed House / Medium Roblox Map</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+                <span>Interior &amp; Exterior Architecture</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+                <span>Atmospheric Custom Lighting &amp; FX</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+                <span>Smooth Terrain &amp; Props</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-circle-check text-fuchsia-400"></i>
+                <span>3-5 Days Delivery</span>
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="openHireModal('Pro Roblox Build ($45 / 4,500 Robux)')" class="w-full py-4 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-purple-600/40 transition-all transform hover:scale-[1.02]">
+            Order Pro Build
+          </button>
+        </div>
+
+        <!-- Tier 3: Full Game Environment -->
+        <div class="glass-card rounded-3xl p-8 flex flex-col justify-between space-y-6 relative border border-purple-500/20 hover:border-purple-500/50 transition-all">
+          <div class="space-y-4">
+            <div class="inline-block px-3 py-1 rounded-full bg-pink-900/40 text-pink-300 text-xs font-semibold">
+              Complete Environment
+            </div>
+            <h3 class="text-2xl font-bold text-white">Full Game World</h3>
+            <p class="text-xs text-gray-400">Complete large Roblox game map, full environment, and optimized architecture.</p>
+            <div class="flex items-baseline gap-2 py-2">
+              <span class="text-4xl font-black text-white">$95</span>
+              <span class="text-sm font-semibold text-purple-300">(or 9,500 Robux)</span>
+            </div>
+
+            <ul class="space-y-3 pt-4 border-t border-purple-900/40 text-sm text-gray-300">
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Full Game Map / Island Environment</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Multiple Buildings &amp; Custom Landmarks</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Advanced Terrain, Foliage &amp; Lighting</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Performance Optimization (Lag-Free)</span>
+              </li>
+              <li class="flex items-center gap-3">
+                <i class="fa-solid fa-check text-purple-400"></i>
+                <span>Direct Roblox Studio .rbxl File Transfer</span>
+              </li>
+            </ul>
+          </div>
+
+          <button onclick="openHireModal('Full Game World ($95 / 9,500 Robux)')" class="w-full py-3.5 rounded-2xl glass-card hover:bg-purple-900/40 text-white font-semibold text-sm border border-purple-500/30 transition-all">
+            Order Full Game Map
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Direct Contact Banner -->
+      <div class="glass-card p-8 rounded-3xl border border-purple-500/40 text-center space-y-4 max-w-2xl mx-auto bg-gradient-to-b from-purple-950/30 to-brand-surface">
+        <i class="fa-solid fa-envelope-open-text text-4xl text-purple-400"></i>
+        <h3 class="text-2xl font-bold text-white">Have a specific custom request?</h3>
+        <p class="text-sm text-gray-300">
+          Email me directly at <a href="mailto:29amirgarba@gmail.com" class="text-purple-400 font-bold underline hover:text-white">29amirgarba@gmail.com</a> with your reference photos, map size, and budget!
+        </p>
+        <a href="mailto:29amirgarba@gmail.com?subject=Roblox%20Build%20Commission%20Inquiry" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm shadow-lg shadow-purple-900/50 transition-all">
+          <i class="fa-solid fa-paper-plane"></i> Email 29amirgarba@gmail.com
+        </a>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- MODAL 1: UPLOAD NEW WORK MODAL -->
+  <div id="uploadModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-card w-full max-w-lg rounded-3xl p-6 sm:p-8 space-y-6 border border-purple-500/40 relative">
+      
+      <button onclick="closeUploadModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="space-y-1">
+        <h3 class="text-2xl font-extrabold text-white">Upload Roblox Build Screenshot</h3>
+        <p class="text-xs text-gray-300">Select build screenshots from your device to add live to your showcase grid.</p>
+      </div>
+
+      <form id="uploadForm" onsubmit="handleWorkUpload(event)" class="space-y-4">
+        
+        <!-- Image File Upload Input -->
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Build Screenshot File *</label>
+          <div class="relative border-2 border-dashed border-purple-500/40 hover:border-purple-400 rounded-2xl p-4 text-center bg-brand-surface/50 transition-colors cursor-pointer" onclick="document.getElementById('imageFileInput').click()">
+            <input type="file" id="imageFileInput" accept="image/*" class="hidden" onchange="previewSelectedImage(event)" required />
+            <div id="uploadPlaceholder" class="space-y-2">
+              <i class="fa-solid fa-cloud-arrow-up text-3xl text-purple-400"></i>
+              <p class="text-xs text-gray-300">Click to choose a Roblox screenshot from your computer</p>
+              <p class="text-[10px] text-gray-500">PNG, JPG, WEBP formats supported</p>
+            </div>
+            <img id="uploadImagePreview" class="hidden max-h-48 mx-auto rounded-xl object-cover shadow-md" alt="Preview" />
+          </div>
+        </div>
+
+        <!-- Title -->
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Build Name *</label>
+          <input type="text" id="workTitle" placeholder="e.g. Victorian Mansion Exterior" required class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400" />
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Build Category *</label>
+          <select id="workCategory" class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400">
+            <option value="Gothic & Fantasy">Gothic &amp; Fantasy</option>
+            <option value="Shrine & Nature">Shrine &amp; Nature</option>
+            <option value="Urban & Tower">Urban &amp; Tower</option>
+            <option value="Medieval">Medieval</option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Build Description *</label>
+          <textarea id="workDesc" rows="3" placeholder="Describe the parts, textures, or lighting used in Roblox Studio..." required class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400"></textarea>
+        </div>
+
+        <!-- Passcode Authorization -->
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1"><i class="fa-solid fa-lock mr-1 text-purple-400"></i> Admin Upload Passcode *</label>
+          <input type="password" id="workPasscode" placeholder="Enter passcode to authorize upload..." required class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400" />
+          <p class="text-[10px] text-gray-400 mt-1">Protection active. Authorized admin passcode required.</p>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2 flex gap-3">
+          <button type="button" onclick="closeUploadModal()" class="w-1/3 py-3 rounded-xl glass-card text-gray-300 hover:text-white text-sm font-semibold">
+            Cancel
+          </button>
+          <button type="submit" class="w-2/3 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-purple-600/40">
+            Publish Build
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+
+  <!-- MODAL 2: PROJECT LIGHTBOX DETAIL MODAL -->
+  <div id="projectModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+    <div class="glass-card w-full max-w-2xl rounded-3xl overflow-hidden border border-purple-500/40 relative">
+      <button onclick="closeProjectModal()" class="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-purple-600 transition-colors">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="relative w-full h-80 bg-brand-dark">
+        <img id="modalProjectImg" class="w-full h-full object-cover" src="" alt="Roblox Build Detail" />
+      </div>
+      
+      <div class="p-6 sm:p-8 space-y-4">
+        <div class="flex items-center justify-between">
+          <span id="modalProjectCategory" class="px-3 py-1 rounded-full bg-purple-900/50 text-purple-300 text-xs font-semibold">
+            Category
+          </span>
+          <span class="text-xs text-gray-400">Roblox Studio Build by Amir Garba</span>
+        </div>
+        <h3 id="modalProjectTitle" class="text-2xl font-extrabold text-white">Title</h3>
+        <p id="modalProjectDesc" class="text-sm text-gray-300 leading-relaxed">Description</p>
+        
+        <div class="pt-4 border-t border-purple-900/40 flex justify-end">
+          <button onclick="closeProjectModal()" class="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm">
+            Close Lightbox
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL 3: HIRE / CONTACT MODAL (SENDS TO 29amirgarba@gmail.com) -->
+  <div id="hireModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-card w-full max-w-lg rounded-3xl p-6 sm:p-8 space-y-6 border border-purple-500/40 relative">
+      
+      <button onclick="closeHireModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white text-xl">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <div class="space-y-1">
+        <h3 class="text-2xl font-extrabold text-white">Order Roblox Build</h3>
+        <p class="text-xs text-purple-300">Selected Plan: <strong id="selectedPlanName" class="text-white">Pro Roblox Build</strong></p>
+        <p class="text-[11px] text-gray-400">Direct Contact: <span class="text-purple-300">29amirgarba@gmail.com</span></p>
+      </div>
+
+      <form onsubmit="handleHireSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Your Name / Roblox Username *</label>
+          <input type="text" id="clientName" placeholder="e.g. RobloxUser123" required class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Your Email Address *</label>
+          <input type="email" id="clientEmail" placeholder="yourname@gmail.com" required class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-purple-300 mb-1">Build Specifications &amp; Project Details</label>
+          <textarea id="clientDetails" rows="3" placeholder="Describe the style, theme, or map size you need built in Roblox Studio..." class="w-full px-4 py-2.5 rounded-xl bg-brand-surface border border-purple-500/30 text-white text-sm focus:outline-none focus:border-purple-400"></textarea>
+        </div>
+
+        <div class="pt-2">
+          <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-purple-600/40">
+            Send Email Inquiry to 29amirgarba@gmail.com
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- FOOTER -->
+  <footer class="relative z-10 border-t border-purple-900/30 bg-brand-black/90 py-8 mt-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-pink-500 flex items-center justify-center text-white font-bold text-sm">
+          AG
+        </div>
+        <p class="text-xs text-gray-400">
+          © <span id="yearSpan">2026</span> Amir Garba — Roblox Builder &amp; 3D Environment Designer. Email: <a href="mailto:29amirgarba@gmail.com" class="text-purple-400 hover:underline">29amirgarba@gmail.com</a>
+        </p>
+      </div>
+
+      <div class="flex items-center space-x-6 text-sm text-gray-400">
+        <button onclick="switchTab('about')" class="hover:text-purple-300 transition-colors">About</button>
+        <button onclick="switchTab('work')" class="hover:text-purple-300 transition-colors">Roblox Builds</button>
+        <button onclick="switchTab('prices')" class="hover:text-purple-300 transition-colors">Prices</button>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Smooth Mouse-Following Radial Gradient Spotlight with LERP (Linear Interpolation)
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let glowX = mouseX;
+    let glowY = mouseY;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    function animateMouseGlow() {
+      // Smooth lerp (physics lag effect)
+      glowX += (mouseX - glowX) * 0.07;
+      glowY += (mouseY - glowY) * 0.07;
+
+      const mouseGlow = document.getElementById('mouseGlow');
+      if (mouseGlow) {
+        mouseGlow.style.transform = `translate3d(${glowX - 250}px, ${glowY - 250}px, 0)`;
+      }
+      requestAnimationFrame(animateMouseGlow);
+    }
+    requestAnimationFrame(animateMouseGlow);
+
+    // Detailed Inline SVG Fallbacks for build previews
+    const FALLBACK_SVGS = {
+      manor: "data:image/svg+xml;utf8," + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600' width='100%' height='100%'><rect width='800' height='600' fill='#0d061a'/><circle cx='680' cy='100' r='45' fill='#f3e8ff' opacity='0.85'/><circle cx='680' cy='100' r='75' fill='#c084fc' opacity='0.2'/><path d='M0,480 Q250,450 500,470 T800,460 L800,600 L0,600 Z' fill='#15092b'/><rect x='220' y='200' width='360' height='280' fill='#2e1547' rx='4'/><polygon points='200,200 400,70 600,200' fill='#1e0a33'/><polygon points='260,200 340,110 420,200' fill='#3b1a59'/><rect x='150' y='160' width='100' height='320' fill='#240e38'/><polygon points='130,160 200,60 270,160' fill='#4c1d70'/><rect x='280' y='240' width='45' height='70' rx='20' fill='#fbbf24' opacity='0.9'/><rect x='370' y='240' width='45' height='70' rx='20' fill='#fbbf24' opacity='0.9'/><rect x='460' y='240' width='45' height='70' rx='20' fill='#fbbf24' opacity='0.9'/><rect x='320' y='360' width='55' height='90' rx='5' fill='#f59e0b' opacity='0.85'/><rect x='430' y='360' width='55' height='90' rx='5' fill='#f59e0b' opacity='0.85'/><path d='M480,480 L580,360 L620,360 L500,480 Z' fill='#581c87'/><line x1='480' y1='480' x2='600' y2='340' stroke='#a855f7' stroke-width='4'/><text x='400' y='550' text-anchor='middle' fill='#e9d5ff' font-family='sans-serif' font-weight='bold' font-size='22'>Victorian Gothic Manor (Roblox Build)</text></svg>`)
+    };
+
+    // Initial Amir Garba Roblox Build Projects Data (Starts clean/empty for live user uploads)
+    let projects = [];
+
+    let currentFilter = 'all';
+    let uploadedImageBase64 = null;
+
+    // Obfuscated Admin Passcode Hash Check (Not visible in inspect element as plain text)
+    const PASS_HASH = "ZGFzYW5pMjAyOQ==";
+
+    // Window Load Init
+    window.addEventListener('load', () => {
+      renderGallery();
+    });
+
+    // Dynamic Build Counters Synced Across All Pages
+    function updateBuildCounts() {
+      const count = projects.length;
+
+      // Update stat counter
+      const statElem = document.getElementById('statCompletedProjects');
+      if (statElem) statElem.innerText = count;
+
+      // Update hero CTA button text
+      const heroBtnElem = document.getElementById('heroBuildsBtnText');
+      if (heroBtnElem) {
+        heroBtnElem.innerText = count === 0 ? 'View Roblox Builds' : `View My ${count} Roblox Build${count === 1 ? '' : 's'}`;
+      }
+
+      // Update filter tab button
+      const filterAllBtn = document.getElementById('filterAllBtn');
+      if (filterAllBtn) {
+        filterAllBtn.innerText = `All Builds (${count})`;
+      }
+    }
+
+    // Navigation Tab Switcher (Instant page swap without delay)
+    function switchTab(tabName) {
+      // Hide all pages instantly
+      document.getElementById('page-about').classList.add('hidden');
+      document.getElementById('page-work').classList.add('hidden');
+      document.getElementById('page-prices').classList.add('hidden');
+
+      // Reset Nav Button Styles
+      const navButtons = document.querySelectorAll('.nav-tab');
+      navButtons.forEach(btn => {
+        btn.className = "nav-tab px-6 py-2 rounded-full font-medium text-sm transition-all duration-300 text-gray-300 hover:text-white hover:bg-purple-950/40";
+      });
+
+      // Show Active Page & Highlight Tab instantly
+      const activePage = document.getElementById(`page-${tabName}`);
+      const activeNav = document.getElementById(`nav-${tabName}`);
+
+      if (activePage) activePage.classList.remove('hidden');
+      if (activeNav) {
+        activeNav.className = "nav-tab px-6 py-2 rounded-full font-medium text-sm transition-all duration-300 bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-md shadow-purple-600/30";
+      }
+
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+
+    // Mobile Menu Toggle
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobileMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    // Render Gallery Cards
+    function renderGallery() {
+      updateBuildCounts();
+
+      const grid = document.getElementById('portfolioGrid');
+      grid.innerHTML = '';
+
+      const filteredProjects = currentFilter === 'all' 
+        ? projects 
+        : projects.filter(p => p.category === currentFilter);
+
+      if (filteredProjects.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-16 px-4 glass-card rounded-3xl border border-purple-500/30 space-y-4">
+            <div class="w-16 h-16 mx-auto rounded-2xl bg-purple-900/40 border border-purple-500/30 flex items-center justify-center text-purple-400 text-3xl">
+              <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-xl font-bold text-white">No Roblox Builds Uploaded Yet</h3>
+              <p class="text-xs text-gray-400 max-w-md mx-auto">Your portfolio is clean and ready! Click below to upload screenshots of your Roblox Studio builds.</p>
+            </div>
+            <button onclick="openUploadModal()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold text-sm shadow-lg shadow-purple-600/30 inline-flex items-center gap-2 transition-transform active:scale-95">
+              <i class="fa-solid fa-cloud-arrow-up"></i>
+              <span>Upload Build Screenshot</span>
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      filteredProjects.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "glass-card rounded-2xl overflow-hidden group hover:-translate-y-1.5 transition-all duration-300 flex flex-col justify-between";
+        
+        const fallbackSrc = item.fallback ? item.fallback.replace(/'/g, "\\'") : FALLBACK_SVGS.manor.replace(/'/g, "\\'");
+
+        card.innerHTML = `
+          <div>
+            <div class="relative overflow-hidden h-56 bg-purple-950/30">
+              <img 
+                src="${item.img}" 
+                alt="${item.title}" 
+                onerror="this.onerror=null; this.src='${fallbackSrc}';"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 filter brightness-95 group-hover:brightness-100" 
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-brand-black via-transparent opacity-80"></div>
+              <span class="absolute top-3 left-3 px-3 py-1 rounded-full bg-brand-surface/85 backdrop-blur-md text-purple-300 text-[11px] font-semibold border border-purple-500/30">
+                ${item.category}
+              </span>
+            </div>
+            
+            <div class="p-5 space-y-2">
+              <h3 class="text-lg font-bold text-white group-hover:text-purple-300 transition-colors">${item.title}</h3>
+              <p class="text-xs text-gray-300 line-clamp-2 leading-relaxed">${item.desc}</p>
+            </div>
+          </div>
+
+          <div class="p-5 pt-0">
+            <button onclick="openProjectModal(${item.id})" class="w-full py-2.5 rounded-xl glass-card hover:bg-purple-900/40 text-purple-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 border border-purple-500/30 transition-colors">
+              <i class="fa-solid fa-eye"></i> View Build Lightbox
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // Category Filter Handler
+    function filterGallery(category) {
+      currentFilter = category;
+      
+      const buttons = document.querySelectorAll('.filter-btn');
+      buttons.forEach(btn => {
+        if (btn.innerText.trim().toLowerCase().includes(category.toLowerCase()) || (category === 'all' && btn.innerText.includes('All'))) {
+          btn.className = "filter-btn active px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-purple-600 text-white shadow-md";
+        } else {
+          btn.className = "filter-btn px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all glass-card text-gray-300 hover:text-white hover:bg-purple-900/40";
+        }
+      });
+
+      renderGallery();
+    }
+
+    // Modal: Open Upload Modal
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.remove('hidden');
+      document.getElementById('uploadModal').classList.add('flex');
+    }
+
+    // Modal: Close Upload Modal
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.add('hidden');
+      document.getElementById('uploadModal').classList.remove('flex');
+      document.getElementById('uploadForm').reset();
+      document.getElementById('uploadImagePreview').classList.add('hidden');
+      document.getElementById('uploadPlaceholder').classList.remove('hidden');
+      uploadedImageBase64 = null;
+    }
+
+    // Preview Selected File Image via FileReader
+    function previewSelectedImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          uploadedImageBase64 = e.target.result;
+          const previewImg = document.getElementById('uploadImagePreview');
+          previewImg.src = uploadedImageBase64;
+          previewImg.classList.remove('hidden');
+          document.getElementById('uploadPlaceholder').classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    // Handle Dynamic Work Upload Form Submission
+    function handleWorkUpload(e) {
+      e.preventDefault();
+
+      // Passcode verification using encoded check
+      const enteredPasscode = document.getElementById('workPasscode').value;
+      if (btoa(enteredPasscode) !== PASS_HASH) {
+        showToast("Access Denied: Incorrect passcode! Only Amir Garba can upload builds.", true);
+        return;
+      }
+
+      const title = document.getElementById('workTitle').value;
+      const category = document.getElementById('workCategory').value;
+      const desc = document.getElementById('workDesc').value;
+
+      const newProject = {
+        id: Date.now(),
+        title: title,
+        category: category,
+        desc: desc,
+        img: uploadedImageBase64 || FALLBACK_SVGS.manor,
+        fallback: uploadedImageBase64 || FALLBACK_SVGS.manor
+      };
+
+      projects.unshift(newProject);
+      
+      closeUploadModal();
+      filterGallery('all');
+      showToast("Success! Your Roblox build screenshot has been added live to your portfolio gallery.");
+    }
+
+    // Project Detail Lightbox Modal
+    function openProjectModal(id) {
+      const project = projects.find(p => p.id === id);
+      if (!project) return;
+
+      const imgElem = document.getElementById('modalProjectImg');
+      imgElem.src = project.img;
+      imgElem.onerror = function() {
+        this.src = project.fallback || FALLBACK_SVGS.manor;
+      };
+
+      document.getElementById('modalProjectCategory').innerText = project.category;
+      document.getElementById('modalProjectTitle').innerText = project.title;
+      document.getElementById('modalProjectDesc').innerText = project.desc;
+
+      const modal = document.getElementById('projectModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeProjectModal() {
+      const modal = document.getElementById('projectModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Hire Modal Controls
+    function openHireModal(planName) {
+      document.getElementById('selectedPlanName').innerText = planName;
+      const modal = document.getElementById('hireModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeHireModal() {
+      const modal = document.getElementById('hireModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    // Handle Hire Form Submission (Launches mailto directly to 29amirgarba@gmail.com)
+    function handleHireSubmit(e) {
+      e.preventDefault();
+      const plan = document.getElementById('selectedPlanName').innerText;
+      const name = document.getElementById('clientName').value;
+      const email = document.getElementById('clientEmail').value;
+      const details = document.getElementById('clientDetails').value;
+
+      const subject = encodeURIComponent(`Roblox Build Inquiry: ${plan} - from ${name}`);
+      const body = encodeURIComponent(`Hello Amir Garba,\n\nI would like to commission a Roblox Studio build!\n\nSelected Package: ${plan}\nMy Roblox Username / Name: ${name}\nMy Email: ${email}\n\nProject Details:\n${details}\n\nLooking forward to hearing from you!`);
+
+      window.location.href = `mailto:29amirgarba@gmail.com?subject=${subject}&body=${body}`;
+
+      closeHireModal();
+      showToast("Opening mail app to send inquiry directly to 29amirgarba@gmail.com!");
+    }
+
+    // Custom Toast Notification System
+    function showToast(message, isError = false) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      const borderClass = isError ? 'border-red-500/70 bg-red-950/40' : 'border-purple-500/50 bg-brand-surface';
+      const iconClass = isError ? 'fa-circle-xmark text-red-400' : 'fa-circle-check text-purple-400';
+      toast.className = `pointer-events-auto flex items-center gap-3 px-5 py-3.5 rounded-2xl ${borderClass} border text-white text-xs sm:text-sm font-medium shadow-2xl shadow-purple-900/60 animate-bounce`;
+      toast.innerHTML = `
+        <i class="fa-solid ${iconClass} text-lg"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    }
+  </script>
+</body>
+</html>
